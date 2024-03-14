@@ -1,21 +1,20 @@
 from aiogram import Bot, Dispatcher, F
 from aiogram.filters import Command, CommandStart, StateFilter
+from aiogram.filters.state import State, StatesGroup
 from aiogram.fsm.context import FSMContext
-from aiogram.fsm.state import default_state, State, StatesGroup
-from aiogram.fsm.storage.redis import RedisStorage, Redis
+from aiogram.fsm.state import default_state
 from aiogram.types import (CallbackQuery, InlineKeyboardButton,
                            InlineKeyboardMarkup, Message, PhotoSize)
+from config import Config, load_config
 
 
-BOT_TOKEN='6662573861:AAEDhLGoAirg7Oy953TGKU2G1Xj6xbnFbJg'
-
-redis = Redis(host='localhost')
-storage = RedisStorage(redis=redis)
+config: Config = load_config()
+BOT_TOKEN = str = config.tg_bot.token
 
 bot = Bot(BOT_TOKEN)
-dp = Dispatcher(storage=storage)
+dp = Dispatcher()
 
-user_dict = {}
+user_dict: dict [int. dict[str, str | int | bool]]= {}
 
 class FSMFillForm(StatesGroup):
     fill_name = State()
@@ -32,7 +31,7 @@ async def process_start_command(message: Message):
     )
 
 @dp.message(Command(commands='cancel'), StateFilter(default_state))
-async def process_cancell_command_state(message: Message, state: FSMContext):
+async def process_cancell_command_state(message: Message):
     await message.answer(
         text='you are not in FSM'
     )
@@ -206,7 +205,6 @@ async def process_showdata_command(message: Message):
                     f'Age: {user_dict[message.from_user.id]["age"]}\n'
                     f'Sex: {user_dict[message.from_user.id]["gender"]}\n'
                     f'Education: {user_dict[message.from_user.id]["education"]}\n'
-                    f'News: {user_dict[message.from_user.id]["wish_news"]}\n'
         )
     else:
         await message.answer(
